@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Главная страница | Skyline Riot{% endblock %}
+
+{% block content %}
+<div class="hero-banner mb-5">
+    <div class="container-fluid px-0">
+        <div class="position-relative overflow-hidden rounded-3 shadow-lg" 
+             style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), 
+                    url('/static/images/int.avif') no-repeat center center; 
+                    background-size: cover;
+                    min-height: 500px;">
+            <div class="position-absolute bottom-0 start-0 p-5 text-white" style="max-width: 800px;">
+                <h1 class="display-3 fw-bold mb-3">SKYLINE RIOT</h1>
+                <p class="lead fs-2 mb-4">Эксклюзивная коллекция "Urban Legends"</p>
+                <a href="/shop" class="btn btn-warning btn-lg px-4 py-3 fs-4">
+                    <i class="bi bi-lightning-charge-fill"></i> Открыть коллекцию
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="bi bi-fire text-danger"></i> Популярные товары
+            </h2>
+            <a href="/shop" class="btn btn-outline-secondary">
+                Все товары <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm product-card">
+                    <div class="position-relative">
+                        {% if product.main_image %}
+                        <img src="{{ product.main_image }}" class="card-img-top p-3" alt="{{ product.name }}" 
+                             style="height: 250px; width: 100%; object-fit: contain;">
+                        {% else %}
+                        <div class="card-img-top no-image d-flex align-items-center justify-content-center bg-light" 
+                             style="height: 250px;">
+                            <span class="text-muted"><i class="bi bi-image" style="font-size: 2rem;"></i></span>
+                        </div>
+                        {% endif %}
+                        {% if product.discount_price %}
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-danger rounded-pill">
+                            -{{ ((1 - product.discount_price / product.price) * 100)|round(0) }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">{{ product.category.value }}</span>
+                        </div>
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="text-muted small">{{ product.brand }}</p>
+                        <div class="mt-auto">
+                            <div class="price mb-3">
+                                {% if product.discount_price %}
+                                <span class="text-danger fw-bold fs-4">{{ product.discount_price }} ₽</span>
+                                <span class="text-decoration-line-through text-muted small ms-2">{{ product.price }} ₽</span>
+                                {% else %}
+                                <span class="fw-bold fs-4">{{ product.price }} ₽</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3">
+                        <div class="d-grid gap-2">
+                            <a href="/product/{{ product.id }}" class="btn btn-outline-dark">
+                                <i class="bi bi-eye"></i> Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mb-5">
+        <h2 class="mb-4">
+            <i class="bi bi-collection"></i> Коллекции
+        </h2>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 collection-card">
+                    <img src="/static/images/london-strit-stail-2020-muzhskoi-2.webp" class="card-img rounded-3" 
+                         style="height: 300px; object-fit: cover;" alt="Мужская коллекция">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="bg-dark bg-opacity-75 w-100 p-4 rounded-bottom-3">
+                            <h3 class="text-white">Мужская коллекция</h3>
+                            <a href="/category/men" class="btn btn-outline-light stretched-link">
+                                Смотреть <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 collection-card">
+                    <img src="/static/images/paris-fashion-week-streetstyle-2022-302624-1664556545990-main.jpg" class="card-img rounded-3" 
+                         style="height: 300px; object-fit: cover;" alt="Женская коллекция">
+                    <div class="card-img-overlay d-flex align-items-end p-0">
+                        <div class="bg-dark bg-opacity-75 w-100 p-4 rounded-bottom-3">
+                            <h3 class="text-white">Женская коллекция</h3>
+                            <a href="/category/women" class="btn btn-outline-light stretched-link">
+                                Смотреть <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-5">
+        <div class="card-body p-5 text-center">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <i class="bi bi-envelope-open text-warning" style="font-size: 2.5rem;"></i>
+                    <h2 class="my-3">Подпишитесь на рассылку</h2>
+                    <p class="lead text-muted mb-4">
+                        Получайте эксклюзивные предложения, персональные скидки и будьте первыми среди новых коллекций
+                    </p>
+                    <form class="row g-2 justify-content-center">
+                        <div class="col-md-8">
+                            <input type="email" class="form-control form-control-lg" placeholder="Ваш email" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-warning btn-lg w-100" type="submit">
+                                Подписаться
+                            </button>
+                        </div>
+                    </form>
+                    <small class="text-muted d-block mt-3">Мы не спамим. Отписаться можно в любой момент.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-banner {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.collection-card {
+    transition: transform 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.collection-card:hover {
+    transform: scale(1.02);
+}
+
+.price {
+    min-height: 3rem;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+@media (max-width: 768px) {
+    .hero-banner {
+        min-height: 400px !important;
+    }
+    
+    .hero-banner h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-banner p {
+        font-size: 1.25rem;
+    }
+}
+</style>
+{% endblock %}

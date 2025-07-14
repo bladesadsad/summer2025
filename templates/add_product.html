@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-box-seam"></i> Добавление нового товара</h1>
+        <a href="/admin" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Назад в админку
+        </a>
+    </div>
+    
+    <div class="card border-0 shadow">
+        <div class="card-body p-4">
+            <form id="productForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-info-circle"></i> Основная информация
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Название товара *</label>
+                                        <input type="text" class="form-control form-control-lg" name="name" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Описание *</label>
+                                        <textarea class="form-control" name="description" rows="4" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-tag"></i> Цены
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Цена *</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" name="price" step="0.01" min="0" required>
+                                                <span class="input-group-text">₽</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Цена со скидкой</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" name="discount_price" step="0.01" min="0">
+                                                <span class="input-group-text">₽</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-list-check"></i> Размеры и наличие
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div id="sizesContainer">
+                                        <div class="row g-3 mb-3 size-row">
+                                            <div class="col-5">
+                                                <input type="text" class="form-control size" placeholder="Размер (S, M, L...)" required>
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="number" class="form-control quantity" min="0" value="0" placeholder="Количество" required>
+                                            </div>
+                                            <div class="col-2 d-flex align-items-center">
+                                                <button type="button" class="btn btn-sm btn-outline-danger remove-size w-100">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="button" id="addSize" class="btn btn-outline-primary mt-3">
+                                        <i class="bi bi-plus"></i> Добавить размер
+                                    </button>
+                                    
+                                    <input type="hidden" name="sizes_json" id="sizesJson">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-grid"></i> Категории
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Категория *</label>
+                                        <select class="form-select" name="category" required>
+                                            <option value="men">Мужское</option>
+                                            <option value="women">Женское</option>
+                                            <option value="kids">Детское</option>
+                                            <option value="accessories">Аксессуары</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Пол *</label>
+                                        <select class="form-select" name="gender" required>
+                                            <option value="male">Мужской</option>
+                                            <option value="female">Женский</option>
+                                            <option value="unisex">Унисекс</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-card-checklist"></i> Детали
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Материал *</label>
+                                        <input type="text" class="form-control" name="material" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Бренд *</label>
+                                        <input type="text" class="form-control" name="brand" required>
+                                    </div>
+                                    
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
+                                        <label class="form-check-label" for="is_active">Активный товар</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-image"></i> Изображение
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">URL изображения *</label>
+                                        <input type="text" class="form-control" name="image_url" required>
+                                    </div>
+                                    
+                                    <div class="text-center mt-3">
+                                        <img id="imagePreview" src="https://via.placeholder.com/300x300?text=Превью+изображения" 
+                                             class="img-fluid rounded border" style="max-height: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-save"></i> Сохранить товар
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('productForm');
+    const sizesContainer = document.getElementById('sizesContainer');
+    const addSizeBtn = document.getElementById('addSize');
+    const sizesJsonInput = document.getElementById('sizesJson');
+    const imageUrlInput = document.querySelector('input[name="image_url"]');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    imageUrlInput.addEventListener('input', function() {
+        imagePreview.src = this.value || 'https://via.placeholder.com/300x300?text=Превью+изображения';
+    });
+    
+    addSizeBtn.addEventListener('click', function() {
+        const newRow = document.createElement('div');
+        newRow.className = 'row g-3 mb-3 size-row';
+        newRow.innerHTML = `
+            <div class="col-5">
+                <input type="text" class="form-control size" placeholder="Размер (S, M, L...)" required>
+            </div>
+            <div class="col-5">
+                <input type="number" class="form-control quantity" min="0" value="0" placeholder="Количество" required>
+            </div>
+            <div class="col-2 d-flex align-items-center">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-size w-100">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        sizesContainer.appendChild(newRow);
+        
+        newRow.querySelector('.remove-size').addEventListener('click', function() {
+            sizesContainer.removeChild(newRow);
+            updateSizesJson();
+        });
+        
+        newRow.querySelector('.size').addEventListener('input', updateSizesJson);
+        newRow.querySelector('.quantity').addEventListener('input', updateSizesJson);
+    });
+
+    sizesContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-size') || e.target.closest('.remove-size')) {
+            const row = e.target.closest('.size-row');
+            if (row) {
+                sizesContainer.removeChild(row);
+                updateSizesJson();
+            }
+        }
+    });
+  
+    function updateSizesJson() {
+        const sizes = {};
+        const rows = sizesContainer.querySelectorAll('.size-row');
+        
+        rows.forEach(row => {
+            const size = row.querySelector('.size').value.trim();
+            const quantity = row.querySelector('.quantity').value.trim();
+            
+            if (size && quantity) {
+                sizes[size] = parseInt(quantity) || 0;
+            }
+        });
+        
+        sizesJsonInput.value = JSON.stringify(sizes);
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateSizesJson();
+
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const sizesData = JSON.parse(sizesJsonInput.value || '{}');
+        if (Object.keys(sizesData).length === 0) {
+            alert('Добавьте хотя бы один размер');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        
+        fetch('/admin/add-product', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            if (data && data.detail) {
+                alert('Ошибка: ' + data.detail);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при сохранении товара');
+        });
+    });
+   
+    updateSizesJson();
+});
+</script>
+
+<style>
+.size-row {
+    transition: all 0.2s ease;
+}
+.remove-size {
+    transition: transform 0.2s ease;
+}
+.remove-size:hover {
+    transform: scale(1.05);
+}
+.card {
+    border-radius: 10px;
+}
+.form-control, .form-select {
+    border-radius: 8px;
+}
+.btn-lg {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}

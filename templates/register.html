@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация | Skyline Riot{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Регистрация</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h1 class="h2 mb-3">Создайте аккаунт</h1>
+                        <p class="text-muted">Уже есть аккаунт? <a href="/login" class="text-dark fw-medium">Войдите</a></p>
+                    </div>
+
+                    {% if error %}
+                    <div class="alert alert-danger d-flex align-items-center mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-medium">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="example@mail.com" 
+                                       required>
+                            </div>
+                            <div class="invalid-feedback">
+                                Пожалуйста, введите корректный email
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="full_name" class="form-label fw-medium">Имя</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="full_name" 
+                                       name="full_name" 
+                                       placeholder="Иван Иванов">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-medium">Пароль</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Не менее 8 символов" 
+                                       required
+                                       minlength="8">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">
+                                Пароль должен содержать минимум 8 символов
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password_confirm" class="form-label fw-medium">Подтвердите пароль</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password_confirm" 
+                                       name="password_confirm" 
+                                       placeholder="Повторите пароль" 
+                                       required
+                                       minlength="8">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">
+                                Пароли должны совпадать
+                            </div>
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label small" for="terms">
+                                Я согласен с <a href="/terms" class="text-dark">условиями использования</a> и 
+                                <a href="/privacy" class="text-dark">политикой конфиденциальности</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                Необходимо принять условия
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100 py-2 mb-3">
+                            <i class="bi bi-person-plus me-2"></i> Зарегистрироваться
+                        </button>
+
+                        <div class="text-center small text-muted mt-3">
+                            Нажимая кнопку, вы соглашаетесь с нашими правилами
+                        </div>
+                    </form>
+
+                    <div class="position-relative my-4">
+                        <hr>
+                        <div class="position-absolute top-50 start-50 translate-middle bg-white px-3">или</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-outline-dark">
+                            <i class="bi bi-google me-2"></i> Продолжить с Google
+                        </a>
+                        <a href="#" class="btn btn-outline-dark">
+                            <i class="bi bi-facebook me-2"></i> Продолжить с Facebook
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.toggle-password {
+    cursor: pointer;
+}
+
+.form-control:focus, .form-check-input:focus {
+    border-color: #212529;
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25);
+}
+
+.invalid-feedback {
+    display: none;
+    font-size: 0.875em;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-check-input:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+.was-validated .form-control:invalid,
+.was-validated .form-check-input:invalid {
+    border-color: #dc3545;
+}
+
+.was-validated .form-control:valid,
+.was-validated .form-check-input:valid {
+    border-color: #198754;
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+});
+
+(function() {
+    'use strict';
+    
+    const forms = document.querySelectorAll('.needs-validation');
+    
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const password = document.getElementById('password');
+            const confirm = document.getElementById('password_confirm');
+            
+            if (password.value !== confirm.value) {
+                confirm.setCustomValidity('Пароли не совпадают');
+            } else {
+                confirm.setCustomValidity('');
+            }
+            
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}

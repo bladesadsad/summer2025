@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | Админ-панель | Skyline Riot{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item"><a href="/admin">Админ-панель</a></li>
+            <li class="breadcrumb-item"><a href="/admin/products">Товары</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name|truncate(30) }}</li>
+        </ol>
+    </nav>
+
+    {% if not request.state.user or request.state.user.role != "admin" %}
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-shield-lock me-2"></i>
+        <div>У вас нет прав доступа к этой странице</div>
+    </div>
+    {% else %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">{{ product.name }}</h1>
+        <div class="d-flex gap-2">
+            <a href="/admin/products/{{ product.id }}/edit" class="btn btn-warning">
+                <i class="bi bi-pencil-square me-2"></i> Редактировать
+            </a>
+            <a href="/admin/products" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i> К списку
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                    <h2 class="h5 mb-0">
+                        <i class="bi bi-images me-2"></i> Изображения
+                    </h2>
+                    <a href="/admin/products/{{ product.id }}/images" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Управление
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    {% if product.images %}
+                    <div class="row g-3">
+                        {% for image in product.images|sort(attribute="position") %}
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="ratio ratio-1x1">
+                                    <img src="{{ image.image_url }}" 
+                                         class="card-img-top object-fit-contain p-2 bg-white"
+                                         alt="{{ image.alt_text or product.name }}"
+                                         onerror="this.src='https://via.placeholder.com/300x300?text=Image+Error'">
+                                </div>
+                                <div class="card-body text-center">
+                                    {% if image.is_main %}
+                                    <span class="badge bg-primary mb-2">
+                                        <i class="bi bi-check-circle me-1"></i> Основное
+                                    </span>
+                                    {% endif %}
+                                    <p class="small mb-1">
+                                        <strong>Позиция:</strong> {{ image.position }}
+                                    </p>
+                                    <p class="small text-muted">
+                                        {{ image.alt_text or "Нет описания" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <div>Нет загруженных изображений</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
+                    <h2 class="h5 mb-0">
+                        <i class="bi bi-list-check me-2"></i> Размеры и наличие
+                    </h2>
+                    <a href="/admin/products/{{ product.id }}/sizes" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Управление
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    {% if product.sizes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Размер</th>
+                                    <th class="text-end">Количество</th>
+                                    <th class="text-end">Обновлено</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for size in product.sizes|sort(attribute="size") %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ size.size }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        {% if size.quantity > 0 %}
+                                        <span class="text-success">{{ size.quantity }} шт.</span>
+                                        {% else %}
+                                        <span class="text-danger">Нет в наличии</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end small text-muted">
+                                        {{ size.updated_at.strftime('%d.%m.%Y') }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <div>Нет доступных размеров</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light py-3">
+                    <h2 class="h5 mb-0">
+                        <i class="bi bi-info-circle me-2"></i> Основная информация
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">ID товара</small>
+                                <div>{{ product.id }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Категория</small>
+                                <span class="badge bg-primary">{{ product.category.value }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Пол</small>
+                                <span class="badge bg-info">{{ product.gender.value }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Бренд</small>
+                                <div>{{ product.brand or '—' }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Цена</small>
+                                <div>
+                                    {% if product.discount_price %}
+                                    <span class="text-danger fw-bold">{{ product.discount_price|int }} ₽</span>
+                                    <small class="text-decoration-line-through text-muted ms-2">{{ product.price|int }} ₽</small>
+                                    {% else %}
+                                    <span class="fw-bold">{{ product.price|int }} ₽</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Артикул</small>
+                                <div>{{ product.sku or '—' }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Статус</small>
+                                <div>
+                                    {% if product.is_active %}
+                                    <span class="badge bg-success">Активен</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Неактивен</span>
+                                    {% endif %}
+                                    {% if product.is_featured %}
+                                    <span class="badge bg-warning text-dark ms-2">Рекомендуемый</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Дата создания</small>
+                                <div>{{ product.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Материал</small>
+                                <div>{{ product.material or '—' }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="border-bottom pb-2 mb-2">
+                                <small class="text-muted d-block">Обновлено</small>
+                                <div>{{ product.updated_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light py-3">
+                    <h2 class="h5 mb-0">
+                        <i class="bi bi-card-text me-2"></i> Описание
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if product.description %}
+                    <div class="product-description">
+                        {{ product.description | replace("\n", "<br>") | safe }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <div>Описание отсутствует</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light py-3">
+                    <h2 class="h5 mb-0">
+                        <i class="bi bi-lightning me-2"></i> Действия
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-grid gap-2">
+                        {% if product.is_active %}
+                        <a href="/admin/products/{{ product.id }}/deactivate" class="btn btn-outline-danger">
+                            <i class="bi bi-eye-slash me-2"></i> Деактивировать
+                        </a>
+                        {% else %}
+                        <a href="/admin/products/{{ product.id }}/activate" class="btn btn-outline-success">
+                            <i class="bi bi-eye me-2"></i> Активировать
+                        </a>
+                        {% endif %}
+                        
+                        {% if product.is_featured %}
+                        <a href="/admin/products/{{ product.id }}/unfeature" class="btn btn-outline-secondary">
+                            <i class="bi bi-star me-2"></i> Убрать из рекомендуемых
+                        </a>
+                        {% else %}
+                        <a href="/admin/products/{{ product.id }}/feature" class="btn btn-outline-warning">
+                            <i class="bi bi-star-fill me-2"></i> Сделать рекомендуемым
+                        </a>
+                        {% endif %}
+                        
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash me-2"></i> Удалить товар
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="deleteModalLabel">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">Внимание!</h6>
+                            Вы собираетесь удалить товар "{{ product.name }}". Это действие невозможно отменить.
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="mb-1"><strong>ID:</strong> {{ product.id }}</p>
+                        <p class="mb-1"><strong>Артикул:</strong> {{ product.sku or '—' }}</p>
+                        <p class="mb-0"><strong>Будет удалено:</strong> {{ product.images|length }} изображений, {{ product.sizes|length }} размеров</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i> Отмена
+                    </button>
+                    <a href="/admin/products/{{ product.id }}/delete" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i> Удалить
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.product-description {
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+.table-responsive {
+    max-height: 300px;
+    border-radius: 0.5rem;
+}
+
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.object-fit-contain {
+    object-fit: contain;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.ratio {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+@media (max-width: 992px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | Skyline Riot{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item"><a href="/category/{{ product.category.name }}">{{ product.category.value }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Галерея товара -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body p-3">
+                    <div class="main-image mb-3 rounded-3 overflow-hidden">
+                        {% if product.images %}
+                            {% set main_image = product.images|selectattr("is_main")|first or product.images[0] %}
+                            <img src="{{ main_image.image_url }}" 
+                                 class="img-fluid w-100" 
+                                 alt="{{ main_image.alt_text or product.name }}"
+                                 id="mainProductImage"
+                                 style="height: 500px; object-fit: contain;"
+                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/600x600?text=No+Image';this.classList.add('bg-light')">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 500px;">
+                                <img src="https://via.placeholder.com/600x600?text=No+Image" 
+                                     class="img-fluid"
+                                     alt="Изображение отсутствует">
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if product.images|length > 1 %}
+                    <div class="thumbnail-gallery d-flex flex-wrap gap-2">
+                        {% for image in product.images|sort(attribute="position") %}
+                        <div class="thumbnail-item" style="width: 80px; cursor: pointer;">
+                            <img src="{{ image.image_url }}" 
+                                 class="img-thumbnail rounded-2 {% if (image.is_main and loop.first) or (not product.images|selectattr('is_main') and loop.first) %}active border-primary{% endif %}" 
+                                 alt="{{ image.alt_text or 'Миниатюра ' + loop.index|string }}"
+                                 style="height: 80px; width: 100%; object-fit: cover;"
+                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/100x100?text=Thumb';"
+                                 onclick="changeMainImage(this)">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация о товаре -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="mb-0">{{ product.name }}</h1>
+                        {% if product.is_featured %}
+                        <span class="badge bg-warning text-dark ms-2">
+                            <i class="bi bi-star-fill"></i> Рекомендуем
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-meta mb-4">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-primary">{{ product.category.value }}</span>
+                            {% if product.brand %}
+                            <span class="badge bg-secondary">{{ product.brand }}</span>
+                            {% endif %}
+                            <span class="badge bg-info">{{ product.gender.value }}</span>
+                        </div>
+
+                        {% if product.sku %}
+                        <p class="text-muted small mb-3">Артикул: {{ product.sku }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-price mb-4">
+                        {% if product.discount_price and product.discount_price < product.price %}
+                        <div class="d-flex align-items-center gap-3">
+                            <h2 class="text-danger mb-0">{{ product.discount_price|int }} ₽</h2>
+                            <span class="text-decoration-line-through text-muted">{{ product.price|int }} ₽</span>
+                            <span class="badge bg-danger rounded-pill">
+                                -{{ ((1 - product.discount_price / product.price) * 100)|round(0) }}%
+                            </span>
+                        </div>
+                        {% else %}
+                        <h2 class="mb-0">{{ product.price|int }} ₽</h2>
+                        {% endif %}
+                    </div>
+
+                    <form id="addToCartForm" class="mb-4">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+
+                        {% if product.sizes %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Размер:</label>
+                            <select name="size_id" class="form-select" required>
+                                {% for size in product.sizes|sort(attribute="size") %}
+                                <option value="{{ size.id }}" 
+                                        data-max-quantity="{{ size.quantity }}"
+                                        {% if size.quantity <= 0 %}disabled{% endif %}>
+                                    {{ size.size }} 
+                                    {% if size.quantity > 0 %}({{ size.quantity }} шт.){% else %}(нет в наличии){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="product-actions">
+                            <div class="d-flex gap-2 align-items-center">
+                                {% if product.sizes and product.sizes|selectattr('quantity', 'gt', 0)|list|length > 0 %}
+                                <div class="quantity-selector d-flex align-items-center">
+                                    <button type="button" class="btn btn-outline-secondary rounded-end-0" 
+                                            onclick="changeQuantity(-1)">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <input type="number" name="quantity" value="1" min="1" 
+                                           class="form-control text-center rounded-0" 
+                                           id="productQuantity" style="width: 60px;">
+                                    <button type="button" class="btn btn-outline-secondary rounded-start-0" 
+                                            onclick="changeQuantity(1)">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-dark flex-grow-1 py-2">
+                                    <i class="bi bi-cart-plus"></i> Добавить в корзину
+                                </button>
+                                {% else %}
+                                <button class="btn btn-outline-secondary w-100 py-2" disabled>
+                                    <i class="bi bi-slash-circle"></i> {% if product.sizes %}Нет в наличии{% else %}Товар доступен{% endif %}
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="accordion mb-4" id="productAccordion">
+                        <div class="accordion-item border-0">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button bg-light rounded-3" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#descriptionCollapse">
+                                    <i class="bi bi-card-text me-2"></i> Описание
+                                </button>
+                            </h2>
+                            <div id="descriptionCollapse" class="accordion-collapse collapse show" 
+                                 data-bs-parent="#productAccordion">
+                                <div class="accordion-body pt-3">
+                                    <p>{{ product.description or "Описание отсутствует" }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border-0 mt-3">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button bg-light rounded-3 collapsed" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#detailsCollapse">
+                                    <i class="bi bi-list-check me-2"></i> Характеристики
+                                </button>
+                            </h2>
+                            <div id="detailsCollapse" class="accordion-collapse collapse" 
+                                 data-bs-parent="#productAccordion">
+                                <div class="accordion-body pt-3">
+                                    <ul class="list-unstyled">
+                                        {% if product.color %}
+                                        <li class="mb-2"><strong>Цвет:</strong> {{ product.color }}</li>
+                                        {% endif %}
+                                        {% if product.material %}
+                                        <li class="mb-2"><strong>Материал:</strong> {{ product.material }}</li>
+                                        {% endif %}
+                                        {% if product.country %}
+                                        <li class="mb-2"><strong>Страна производитель:</strong> {{ product.country }}</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-dark flex-grow-1">
+                            <i class="bi bi-heart"></i> В избранное
+                        </button>
+                        <button class="btn btn-outline-dark flex-grow-1">
+                            <i class="bi bi-share"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-gallery {
+    position: sticky;
+    top: 20px;
+}
+
+.thumbnail-item img {
+    transition: all 0.2s ease;
+    object-fit: cover;
+}
+
+.thumbnail-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.thumbnail-item img.active {
+    border: 2px solid #0d6efd !important;
+}
+
+.quantity-selector .btn {
+    width: 40px;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+    color: #212529;
+    box-shadow: none;
+}
+
+.accordion-body {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+@media (max-width: 992px) {
+    .product-gallery {
+        position: static;
+    }
+    
+    .main-image img {
+        height: 400px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-image img {
+        height: 300px !important;
+    }
+    
+    .thumbnail-item {
+        width: 60px;
+    }
+    
+    .thumbnail-item img {
+        height: 60px !important;
+    }
+}
+</style>
+
+<script>
+function changeMainImage(thumb) {
+    const mainImg = document.getElementById('mainProductImage');
+    mainImg.src = thumb.src;
+    document.querySelectorAll('.thumbnail-item img').forEach(img => {
+        img.classList.remove('active', 'border-primary');
+    });
+    thumb.classList.add('active', 'border-primary');
+}
+
+function changeQuantity(amount) {
+    const input = document.getElementById('productQuantity');
+    const sizeSelect = document.querySelector('select[name="size_id"]');
+    const maxQuantity = sizeSelect ? parseInt(sizeSelect.options[sizeSelect.selectedIndex].dataset.maxQuantity) : 1;
+    
+    let value = parseInt(input.value) + amount;
+    if (value < 1) value = 1;
+    if (maxQuantity && value > maxQuantity) value = maxQuantity;
+    
+    input.value = value;
+}
+
+document.querySelector('select[name="size_id"]')?.addEventListener('change', function() {
+    const input = document.getElementById('productQuantity');
+    const maxQuantity = parseInt(this.options[this.selectedIndex].dataset.maxQuantity);
+    if (input.value > maxQuantity) {
+        input.value = maxQuantity;
+    }
+    input.max = maxQuantity;
+});
+
+document.getElementById('addToCartForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        product_id: this.elements.product_id.value,
+        size_id: this.elements.size_id?.value,
+        quantity: this.elements.quantity.value
+    };
+    
+    try {
+        const response = await fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.detail || 'Ошибка при добавлении в корзину');
+        }
+        
+        showAlert('Товар успешно добавлен в корзину!', 'success');
+        updateCartCounter(result.cart_count);
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showAlert(error.message, 'danger');
+    }
+});
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alertDiv.style.zIndex = '1100';
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.classList.remove('show');
+        setTimeout(() => alertDiv.remove(), 150);
+    }, 3000);
+}
+
+function updateCartCounter(count) {
+    const counter = document.getElementById('cartCounter');
+    if (counter) {
+        counter.textContent = count;
+        counter.classList.add('animate__animated', 'animate__bounce');
+        setTimeout(() => counter.classList.remove('animate__bounce'), 1000);
+    }
+}
+</script>
+{% endblock %}

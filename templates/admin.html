@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Административная панель</h1>
+    
+    {% if not request.state.user or request.state.user.role != "admin" %}
+    <div class="alert alert-danger">
+        У вас нет прав доступа к этой странице
+    </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h2 class="mb-0">Товары</h2>
+        </div>
+        <div class="card-body">
+            <a href="/admin/add-product" class="btn btn-success mb-3">
+                <i class="bi bi-plus"></i> Добавить товар
+            </a>
+            
+            {% if not products %}
+            <div class="alert alert-info">
+                Нет доступных товаров. Добавьте первый товар.
+            </div>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Категория</th>
+                            <th>Цена</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category.value }}</td>
+                            <td>
+                                {% if product.discount_price %}
+                                <span class="text-danger fw-bold">{{ product.discount_price }} руб.</span>
+                                <span class="text-decoration-line-through text-muted">{{ product.price }} руб.</span>
+                                {% else %}
+                                {{ product.price }} руб.
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if product.is_active %}
+                                <span class="badge bg-success">Активен</span>
+                                {% else %}
+                                <span class="badge bg-danger">Неактивен</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/admin/products/{{ product.id }}/edit" class="btn btn-sm btn-warning me-1">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="/admin/products/{{ product.id }}" class="btn btn-sm btn-info me-1">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <form method="POST" action="/admin/products/{{ product.id }}/delete" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('Удалить этот товар?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-pencil-square"></i> Редактировать товар</h1>
+        <a href="/admin" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Назад
+        </a>
+    </div>
+    
+    <div class="card border-0 shadow">
+        <div class="card-body p-4">
+            <form method="POST" class="needs-validation" novalidate>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-info-circle"></i> Основная информация
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Название товара *</label>
+                                        <input type="text" class="form-control form-control-lg" name="name" 
+                                               value="{{ product.name }}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Описание</label>
+                                        <textarea class="form-control" name="description" rows="4">{{ product.description }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-tag"></i> Цены
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Цена *</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" name="price" 
+                                                       value="{{ product.price }}" step="0.01" min="0" required>
+                                                <span class="input-group-text">₽</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Цена со скидкой</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" name="discount_price" 
+                                                       value="{{ product.discount_price if product.discount_price }}" step="0.01" min="0">
+                                                <span class="input-group-text">₽</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-grid"></i> Категории
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Категория *</label>
+                                        <select class="form-select" name="category" required>
+                                            <option value="men" {% if product.category == 'men' %}selected{% endif %}>Мужское</option>
+                                            <option value="women" {% if product.category == 'women' %}selected{% endif %}>Женское</option>
+                                            <option value="kids" {% if product.category == 'kids' %}selected{% endif %}>Детское</option>
+                                            <option value="accessories" {% if product.category == 'accessories' %}selected{% endif %}>Аксессуары</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Пол *</label>
+                                        <select class="form-select" name="gender" required>
+                                            <option value="male" {% if product.gender == 'male' %}selected{% endif %}>Мужской</option>
+                                            <option value="female" {% if product.gender == 'female' %}selected{% endif %}>Женский</option>
+                                            <option value="unisex" {% if product.gender == 'unisex' %}selected{% endif %}>Унисекс</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-card-checklist"></i> Детали
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Материал</label>
+                                        <input type="text" class="form-control" name="material" value="{{ product.material }}">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Бренд</label>
+                                        <input type="text" class="form-control" name="brand" value="{{ product.brand }}">
+                                    </div>
+                                    
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" 
+                                               {% if product.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_active">Активный товар</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3 text-primary">
+                                <i class="bi bi-image"></i> Изображение
+                            </h5>
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">URL изображения *</label>
+                                        <input type="text" class="form-control" name="image_url" 
+                                               value="{{ product.image_url }}" required>
+                                    </div>
+                                    
+                                    <div class="text-center mt-3">
+                                        <img id="imagePreview" src="{{ product.image_url or 'https://via.placeholder.com/300x300?text=Превью+изображения' }}" 
+                                             class="img-fluid rounded border" style="max-height: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-save"></i> Сохранить изменения
+                    </button>
+                    <a href="/admin" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageUrlInput = document.querySelector('input[name="image_url"]');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    imageUrlInput.addEventListener('input', function() {
+        imagePreview.src = this.value || 'https://via.placeholder.com/300x300?text=Превью+изображения';
+    });
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+});
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+}
+.form-control, .form-select {
+    border-radius: 8px;
+}
+.btn-lg {
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+}
+#imagePreview {
+    transition: opacity 0.3s ease;
+}
+#imagePreview:hover {
+    opacity: 0.9;
+}
+</style>
+{% endblock %}

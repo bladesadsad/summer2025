@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты поиска{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">Результаты поиска по запросу: "{{ query }}"</h1>
+
+    {% if results %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in results %}
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{ product.images[0].image_url if product.images else '/static/no-image.png' }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description[:100] }}...</p>
+                            <p class="card-text">
+                                {% if product.discount_price %}
+                                    <span class="text-danger">{{ product.discount_price }} ₽</span>
+                                    <span class="text-muted text-decoration-line-through">{{ product.price }} ₽</span>
+                                {% else %}
+                                    <span>{{ product.price }} ₽</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Ничего не найдено.</p>
+    {% endif %}
+{% endblock %}
