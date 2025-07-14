@@ -38,7 +38,6 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     
-    # Relationships
     cart = relationship("Cart", back_populates="user", uselist=False, cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="user")
 
@@ -116,7 +115,6 @@ class Cart(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     user = relationship("User", back_populates="cart")
     items = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan")
 
@@ -138,7 +136,6 @@ class CartItem(Base):
     quantity = Column(Integer, default=1)
     added_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relationships
     cart = relationship("Cart", back_populates="items")
     product = relationship("Product", back_populates="cart_items")
     size = relationship("ProductSize", back_populates="cart_items")

@@ -15,6 +15,7 @@ from urllib.parse import quote, unquote
 from pydantic import BaseModel
 from enum import Enum
 import json
+import fcntl
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 app = FastAPI()
